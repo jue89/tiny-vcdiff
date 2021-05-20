@@ -4,8 +4,12 @@ static const char *state_hdr_str[] = {
 	FOREACH_STATE_HDR(GENERATE_STRING)
 };
 
-static const char *state_win_str[] = {
-	FOREACH_STATE_WIN(GENERATE_STRING)
+static const char *state_win_hdr_str[] = {
+	FOREACH_STATE_WIN_HDR(GENERATE_STRING)
+};
+
+static const char *state_win_body_str[] = {
+	FOREACH_STATE_WIN_BODY(GENERATE_STRING)
 };
 
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
@@ -17,9 +21,12 @@ const char *vcdiff_state_str (vcdiff_t *ctx) {
 		case STATE_HDR:
 			if (state_min >= ARRAY_LENGTH(state_hdr_str)) break;
 			return state_hdr_str[state_min];
-		case STATE_WIN:
-			if (state_min >= ARRAY_LENGTH(state_win_str)) break;
-			return state_win_str[state_min];
+		case STATE_WIN_HDR:
+			if (state_min >= ARRAY_LENGTH(state_win_hdr_str)) break;
+			return state_win_hdr_str[state_min];
+		case STATE_WIN_BODY:
+			if (state_min >= ARRAY_LENGTH(state_win_body_str)) break;
+			return state_win_body_str[state_min];
 	}
 	return "UNKNOWN STATE!";
 }

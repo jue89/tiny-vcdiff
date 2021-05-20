@@ -5,8 +5,15 @@
 #include <stddef.h>
 
 typedef struct {
-	uint16_t state;
 	const char *error_msg;
+	uint16_t state;
+
+	uint8_t win_indicator;
+	uint32_t target_offset;
+	uint32_t win_segment_len;
+	uint32_t win_segment_pos;
+	uint32_t win_window_len;
+	uint32_t win_inst_len;
 } vcdiff_t;
 
 void vcdiff_init (vcdiff_t *ctx);
