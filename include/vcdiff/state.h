@@ -1,0 +1,37 @@
+#ifndef VCDIFF_STATE_H
+#define VCDIFF_STATE_H
+
+#include "vcdiff.h"
+
+#define GENERATE_ENUM(ENUM) ENUM,
+#define GENERATE_STRING(STRING) #STRING,
+
+#define FOREACH_STATE_HDR(STATE) \
+	STATE(STATE_HDR_MAGIC0) \
+	STATE(STATE_HDR_MAGIC1) \
+	STATE(STATE_HDR_MAGIC2) \
+	STATE(STATE_HDR_MAGIC3) \
+	STATE(STATE_HDR_INDICATOR)
+
+#define FOREACH_STATE_WIN(STATE) \
+	STATE(STATE_WIN_INDICATOR)
+
+enum {
+	STATE_HDR = 0x0000,
+	STATE_WIN = 0x0100,
+	STATE_FINISH = 0xff00
+};
+
+enum {
+	FOREACH_STATE_HDR(GENERATE_ENUM)
+};
+
+enum {
+	FOREACH_STATE_WIN(GENERATE_ENUM)
+};
+
+const char *vcdiff_state_str (vcdiff_t *ctx);
+
+const char *vcdiff_error_str (vcdiff_t *ctx);
+
+#endif

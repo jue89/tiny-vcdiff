@@ -5,7 +5,7 @@ SDIR=src
 IDIR=include
 TDIR=tests
 
-OBJ = obj/vcdiff_read.o
+OBJ = obj/vcdiff_read.o obj/vcdiff_state.o obj/vcdiff.o
 
 CFLAGS=-I$(IDIR)
 CFLAGS_TESTS=$(CFLAGS) -lcmocka
