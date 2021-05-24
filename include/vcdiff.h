@@ -14,6 +14,7 @@ typedef int (*vcdiff_driver_read_t)(void *dev, uint8_t *dest, size_t offset, siz
 typedef int (*vcdiff_driver_write_t)(void *dev, uint8_t *src, size_t offset, size_t len);
 typedef int (*vcdiff_driver_flush_t)(void *dev, size_t offset, size_t len);
 typedef int (*vcdiff_driver_erase_t)(void *dev, size_t offset, size_t len);
+typedef int (*vcdiff_log_t)(const char *fmt, ...);
 
 typedef struct {
 	vcdiff_driver_read_t read;
@@ -23,6 +24,9 @@ typedef struct {
 } vcdiff_driver_t;
 
 typedef struct {
+	vcdiff_log_t debug_log;
+	vcdiff_log_t state_log;
+
 	vcdiff_driver_t *source_driver;
 	void *source_dev;
 	vcdiff_driver_t *target_driver;

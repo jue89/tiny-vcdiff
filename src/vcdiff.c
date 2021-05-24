@@ -6,10 +6,17 @@
 #include "assert.h"
 #include <string.h>
 
+#define LOG(FMT, ...) \
+	if (ctx->debug_log) ctx->debug_log(FMT, __VA_ARGS__);
+#define LOG_STATE() \
+	if (ctx->state_log) ctx->state_log("Enter state: %s\n", vcdiff_state_str(ctx));
+
 #define STATE(MAJ, MIN) \
 	case (MAJ + MIN): \
 		assert(ctx->error_msg == NULL); \
-		assert(ctx->state == MAJ + MIN);
+		assert(ctx->state == MAJ + MIN); \
+		LOG_STATE();
+
 
 #define SET_STATE(MAJ, MIN) \
 	ctx->state = MAJ + MIN;
@@ -98,10 +105,13 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 			if (ctx->win_indicator != VCD_SOURCE && ctx->win_indicator != VCD_TARGET && ctx->win_indicator != 0x00) {
 				RET_ERR(-1, "Unsupported window indicator");
 			}
+
 			if (ctx->win_indicator == 0x00) {
+				LOG("WIN%s", "");
 				SET_STATE(STATE_WIN_HDR, STATE_WIN_HDR_DELTA_LEN);
 				break; /* the parent method will bring us back */
 			} else {
+				LOG("WIN %s ", (ctx->win_indicator == VCD_SOURCE) ? "VCD_SOURCE" : "VCD_TARGET");
 				SET_STATE(STATE_WIN_HDR, STATE_WIN_HDR_SEGMENT_LEN);
 			}
 		}
@@ -111,6 +121,7 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 		}
 		STATE(STATE_WIN_HDR, STATE_WIN_HDR_SEGMENT_POS) {
 			READ_INT(&ctx->win_segment_pos);
+			LOG("[0x%x+%d]", ctx->win_segment_pos, ctx->win_segment_len);
 			SET_STATE(STATE_WIN_HDR, STATE_WIN_HDR_DELTA_LEN);
 		}
 		STATE(STATE_WIN_HDR, STATE_WIN_HDR_DELTA_LEN) {
@@ -159,6 +170,8 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 				if (rc < 0) RET_ERR(rc, "Target erase failed");
 			}
 
+			LOG(" => [0x%0x+%d]\n", ctx->target_offset, ctx->win_window_len);
+
 			SET_STATE(STATE_WIN_BODY, STATE_WIN_BODY_INST);
 			break;
 		}
@@ -203,6 +216,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 	if (inst == VCDIFF_INST_ADD) {
 		while (*size > 0) {
 			uint32_t to_write = FIT_TO_BUFFER(*size);
+			LOG("  ADD => [0x%x+%d]\n", ctx->target_offset + ctx->win_window_pos, to_write);
 			READ_BUFFER(to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
 			if (rc < 0) RET_ERR(rc, "INST_ADD: cannot write to target");
@@ -217,6 +231,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 		READ_BYTE(&byte);
 		while (*size > 0) {
 			uint32_t to_write = FIT_TO_BUFFER(*size);
+			LOG("  RUN 0x%02x => [0x%x+%d]\n", byte, ctx->target_offset + ctx->win_window_pos, to_write);
 			memset(ctx->buffer, byte, to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
 			if (rc < 0) RET_ERR(rc, "INST_RUN: cannot write to target");
@@ -239,6 +254,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 				if (*addr + *size > ctx->win_segment_len) {
 					RET_ERR(-1, "Address must not cross source boundary");
 				}
+				LOG("  COPY from SEGMENT [0x%x+%d]", *addr, to_copy);
 				rc = driver->read(dev, ctx->buffer, ctx->win_segment_pos + *addr, to_copy);
 			} else {
 				/* data lives in the current window */
@@ -247,11 +263,13 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 					RET_ERR(-1, "Address is outside of available target window");
 				}
 				to_copy = MIN(to_copy, bytes_ahead);
+				LOG("  COPY from WINDOW [0x%x+%d]", *addr - ctx->win_segment_len, to_copy);
 				rc = ctx->target_driver->read(ctx->target_dev, ctx->buffer, *addr - ctx->win_segment_len + ctx->target_offset, to_copy);
 			}
 			if (rc < 0) RET_ERR(rc, "INST_COPY: cannot read from target/source");
 
 			/* write */
+			LOG(" => [0x%x+%d]\n", ctx->target_offset + ctx->win_window_pos, to_copy);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_copy);
 			if (rc < 0) RET_ERR(rc, "INST_COPY: cannot write to target");
 
