@@ -14,6 +14,15 @@ typedef struct {
 	uint32_t win_segment_pos;
 	uint32_t win_window_len;
 	uint32_t win_inst_len;
+
+	uint8_t inst0;
+	uint8_t inst1;
+	uint8_t mode0;
+	uint8_t mode1;
+	uint32_t size0;
+	uint32_t size1;
+	uint32_t addr0;
+	uint32_t addr1;
 } vcdiff_t;
 
 void vcdiff_init (vcdiff_t *ctx);
