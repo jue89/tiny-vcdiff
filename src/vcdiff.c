@@ -243,7 +243,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 
 	if (inst == VCDIFF_INST_COPY) {
 		while (*size > 0) {
-			vcdiff_driver_t *driver = (ctx->win_indicator & VCD_SOURCE) ? ctx->source_driver : ctx->target_driver;
+			const vcdiff_driver_t *driver = (ctx->win_indicator & VCD_SOURCE) ? ctx->source_driver : ctx->target_driver;
 			void *dev = (ctx->win_indicator & VCD_SOURCE) ? ctx->source_dev : ctx->target_dev;
 
 			uint32_t to_copy = FIT_TO_BUFFER(*size);

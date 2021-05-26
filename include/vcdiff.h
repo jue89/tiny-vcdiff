@@ -27,9 +27,9 @@ typedef struct {
 	vcdiff_log_t debug_log;
 	vcdiff_log_t state_log;
 
-	vcdiff_driver_t *source_driver;
+	const vcdiff_driver_t *source_driver;
 	void *source_dev;
-	vcdiff_driver_t *target_driver;
+	const vcdiff_driver_t *target_driver;
 	void *target_dev;
 
 	const char *error_msg;
