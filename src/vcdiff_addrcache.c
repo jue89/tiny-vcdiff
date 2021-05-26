@@ -13,7 +13,7 @@ void vcdiff_addrcache_update (vcdiff_cache_t *cache, size_t addr) {
 	cache->next_slot = (cache->next_slot + 1) % ARRAY_SIZE(cache->near);
 
 	/* udpate same cache */
-	cache->same[addr & ARRAY_SIZE(cache->same)] = addr;
+	cache->same[addr % ARRAY_SIZE(cache->same)] = addr;
 }
 
 vcdiff_mode_t vcdiff_addrcache_get_mode (uint8_t mode) {

@@ -190,7 +190,7 @@ static int _parse_win_body_addr(vcdiff_t *ctx, const uint8_t **input, size_t *in
 			break;
 		case VCDIFF_MODE_HERE:
 			READ_INT(addr);
-			*addr = vcdiff_addrcache_decode_here(&ctx->cache, ctx->win_window_pos,*addr);
+			*addr = vcdiff_addrcache_decode_here(&ctx->cache, ctx->win_segment_len + ctx->win_window_pos, *addr);
 			break;
 		case VCDIFF_MODE_NEAR:
 			READ_INT(addr);
