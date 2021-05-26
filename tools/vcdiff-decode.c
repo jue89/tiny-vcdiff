@@ -84,14 +84,14 @@ static const vcdiff_driver_t source_driver = {
 	.read = _source_read
 };
 
-static int apply_delta(FILE *delta, FILE *source, FILE *target_file, size_t log_interval) {
+static int apply_delta(FILE *delta, FILE *source, FILE *target_file, size_t log_interval, vcdiff_log_t inst_log) {
 	static vcdiff_t ctx;
 	struct target_stream target = {.file = target_file, .log_interval = log_interval};
 	uint8_t delta_buf[16 * 1024];
 	size_t delta_len;
 
 	vcdiff_init(&ctx);
-	vcdiff_set_logger(&ctx, NULL, NULL);
+	vcdiff_set_logger(&ctx, inst_log, NULL);
 	vcdiff_set_source_driver(&ctx, &source_driver, (void *) source);
 	vcdiff_set_target_driver(&ctx, &target_driver, (void *) &target);
 
@@ -113,13 +113,25 @@ static void usage (void) {
 	fprintf(stderr, "Usage: vcdiff-decode [-l log_interval] source_path\n");
 }
 
+static int stderr_logger (const char *fmt, ...) {
+	va_list args;
+	va_start (args, fmt);
+	vfprintf (stderr, fmt, args);
+	va_end (args);
+	return 0;
+}
+
 int main(int argc, char* argv[]) {
 	int opt;
 	size_t log_interval = 0;
+	vcdiff_log_t inst_log = NULL;
 
-	while ((opt = getopt(argc, argv, "l:")) != -1) {
+	while ((opt = getopt(argc, argv, "is:")) != -1) {
 		switch (opt) {
-			case 'l':
+			case 'i':
+				inst_log = stderr_logger;
+				break;
+			case 's':
 				log_interval = atoi(optarg) * 1024;
 				break;
 			default:
@@ -139,7 +151,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	int rc = apply_delta(stdin, source, stdout, log_interval);
+	int rc = apply_delta(stdin, source, stdout, log_interval, inst_log);
 
 	fclose(source);
 
