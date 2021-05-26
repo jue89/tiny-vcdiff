@@ -384,6 +384,10 @@ static inline int _parse_win_body(vcdiff_t *ctx, const uint8_t **input, size_t *
 int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t input_remainder) {
 	int rc = 0;
 
+	/* make sure drivers are attached */
+	assert(ctx->target_driver && ctx->target_driver->read && ctx->target_driver->write);
+	assert(ctx->source_driver && ctx->source_driver->read);
+
 	while (rc == 0) {
 		switch (ctx->state & 0xff00) {
 			case STATE_HDR:
@@ -411,6 +415,10 @@ void vcdiff_init (vcdiff_t *ctx) {
 	ctx->error_msg = NULL;
 	ctx->target_offset = 0;
 	ctx->buffer_ptr = 0;
+	ctx->target_driver = NULL;
+	ctx->source_driver = NULL;
+	ctx->inst_log = NULL;
+	ctx->state_log = NULL;
 }
 
 int vcdiff_finish (vcdiff_t *ctx) {

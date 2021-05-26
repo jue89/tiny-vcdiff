@@ -64,11 +64,16 @@ int target_flush (void *dev, size_t offset, size_t len) {
 	expect_value(target_flush, len, LEN); \
 	will_return(target_flush, RC);
 
-static vcdiff_driver_t target_driver = {
+static vcdiff_driver_t target_driver_full = {
 	.erase = target_erase,
 	.write = target_write,
 	.read = target_read,
 	.flush = target_flush
+};
+
+static vcdiff_driver_t target_driver = {
+	.write = target_write,
+	.read = target_read,
 };
 
 int source_read (void *dev, uint8_t *dst, size_t offset, size_t len) {
@@ -97,6 +102,8 @@ static void test_vcdiff_header (void **state) {
 
 	/* read header in one go */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	assert_int_equal(ctx.state, 0);
 	assert_ptr_equal(ctx.error_msg, NULL);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), 0);
@@ -110,6 +117,8 @@ static void test_vcdiff_header (void **state) {
 
 	/* read header byte-wise */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	for (size_t i = 0; i < sizeof(data); i++) {
 		assert_int_equal(vcdiff_apply_delta(&ctx, &data[i], 1), 0);
 	}
@@ -119,6 +128,8 @@ static void test_vcdiff_header (void **state) {
 	/* fail with wrong header indicator */
 	data[4] = 0x01;
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), -1);
 	assert_string_equal("STATE_HDR_INDICATOR", vcdiff_state_str(&ctx));
 	assert_string_equal("Header indicator references unsupported features", vcdiff_error_str(&ctx));
@@ -126,6 +137,8 @@ static void test_vcdiff_header (void **state) {
 	/* fail with wrong magic */
 	data[3] = 0x00;
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), -1);
 	assert_string_equal("STATE_HDR_MAGIC3", vcdiff_state_str(&ctx));
 	assert_string_equal("Invalid magic", vcdiff_error_str(&ctx));
@@ -138,6 +151,8 @@ static void test_vcdiff_win_header (void **state) {
 
 	/* read in one go */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void *) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), 0);
 	assert_string_equal("NO ERROR", vcdiff_error_str(&ctx));
@@ -150,6 +165,8 @@ static void test_vcdiff_win_header (void **state) {
 
 	/* read byte-wise */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void *) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	for (size_t i = 0; i < sizeof(data); i++) {
 		assert_int_equal(vcdiff_apply_delta(&ctx, &data[i], 1), 0);
@@ -162,10 +179,12 @@ static void test_vcdiff_win_header (void **state) {
 static void test_vcdiff_win_header_seg (void **state) {
 	(void) state;
 	uint8_t data[] = {0xD6, 0xC3, 0xC4, 0x53, 0x00, 0x01, 0x81, 0x89, 0x28, 0x00, 0x1D, 0x81, 0x89, 0x28, 0x00, 0x00, 0x16, 0x00};
-	vcdiff_t ctx = {.target_driver = &target_driver, .target_dev = (void*) 0x42};
+	vcdiff_t ctx;
 
 	/* read in one go */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void *) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), 0);
 	assert_string_equal("NO ERROR", vcdiff_error_str(&ctx));
@@ -178,6 +197,8 @@ static void test_vcdiff_win_header_seg (void **state) {
 
 	/* read byte-wise */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void *) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	for (size_t i = 0; i < sizeof(data); i++) {
 		assert_int_equal(vcdiff_apply_delta(&ctx, &data[i], 1), 0);
@@ -190,16 +211,12 @@ static void test_vcdiff_win_header_seg (void **state) {
 static void test_vcdiff_win_body1 (void **state) {
 	(void) state;
 	uint8_t data[] = {0xD6, 0xC3, 0xC4, 0x53, 0x00, 0x01, 0x81, 0x89, 0x28, 0x00, 0x1D, 0x81, 0x89, 0x28, 0x00, 0x00, 0x16, 0x00, 0x11, 0x52, 0x49, 0x4F, 0x54, 0xDF, 0x1A, 0x99, 0x60, 0x00, 0x14, 0x00, 0x08, 0x1A, 0x35, 0xC3, 0x1A, 0x13, 0x81, 0x89, 0x18, 0x10};
-	vcdiff_t ctx = {
-		.target_driver = &target_driver,
-		.target_dev = (void*) 0x42,
-		.source_driver = &source_driver,
-		.source_dev = (void*) 0x43,
-		//.debug_log = printf
-	};
+	vcdiff_t ctx;
 
 	/* read in one go */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void*) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, (void*) 0x43);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	uint32_t len = 0x10;
 	uint32_t offset = 0x0;
@@ -224,7 +241,8 @@ static void test_vcdiff_win_body1 (void **state) {
 
 	/* read byte-wise */
 	vcdiff_init(&ctx);
-	ctx.debug_log = NULL;
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void*) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, (void*) 0x43);
 	expect_target_erase(0, 0x42, 0, 0x44a8);
 	len = 0x10;
 	offset = 0x0;
@@ -253,17 +271,14 @@ static void test_vcdiff_win_body1 (void **state) {
 static void test_vcdiff_win_body2 (void **state) {
 	(void) state;
 	uint8_t data[] = {0xD6, 0xC3, 0xC4, 0x53, 0x00, 0x01, 0x00, 0x00, 0x16, 0x82, 0x44, 0x00, 0x00, 0x10, 0x00, 0x02, 0x61, 0x73, 0x82, 0x17, 0x00, 0x05, 0x0A, 0x31, 0x32, 0x33, 0x23, 0x27, 0x03, 0x02, 0x0A};
-	vcdiff_t ctx = {
-		.target_driver = &target_driver,
-		.target_dev = (void*) 0x42,
-		.source_driver = &source_driver,
-		.source_dev = (void*) 0x43,
-		//.debug_log = printf
-	};
+	vcdiff_t ctx;
 
 	/* read in one go */
 	vcdiff_init(&ctx);
+	vcdiff_set_target_driver(&ctx, &target_driver_full, (void*) 0x42);
+	vcdiff_set_source_driver(&ctx, &source_driver, (void*) 0x43);
 	expect_target_erase(0, 0x42, 0, 0x144);
+
 	expect_target_write(0, 0x42, ctx.buffer, 0x00, 0x1);
 	uint32_t len = 279;
 	uint32_t roffset = 0x0;
