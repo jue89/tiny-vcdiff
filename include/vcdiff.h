@@ -73,7 +73,7 @@ static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t inst_log, vcdi
 	ctx->state_log = state_log;
 }
 
-int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t input_remainder);
+int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t len);
 
 int vcdiff_finish (vcdiff_t *ctx);
 
