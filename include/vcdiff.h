@@ -58,6 +58,21 @@ typedef struct {
 
 void vcdiff_init (vcdiff_t *ctx);
 
+static inline void vcdiff_set_target_driver (vcdiff_t *ctx, const vcdiff_driver_t *driver, void *dev) {
+	ctx->target_driver = driver;
+	ctx->target_dev = dev;
+}
+
+static inline void vcdiff_set_source_driver (vcdiff_t *ctx, const vcdiff_driver_t *driver, void *dev) {
+	ctx->source_driver = driver;
+	ctx->source_dev = dev;
+}
+
+static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t debug_log, vcdiff_log_t state_log) {
+	ctx->debug_log = debug_log;
+	ctx->state_log = state_log;
+}
+
 int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t input_remainder);
 
 int vcdiff_finish (vcdiff_t *ctx);
