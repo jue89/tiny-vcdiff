@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #define LOG(FMT, ...) \
-	if (ctx->debug_log) ctx->debug_log(FMT, __VA_ARGS__);
+	if (ctx->inst_log) ctx->inst_log(FMT, __VA_ARGS__);
 #define LOG_STATE() \
 	if (ctx->state_log) ctx->state_log("Enter state: %s\n", vcdiff_state_str(ctx));
 

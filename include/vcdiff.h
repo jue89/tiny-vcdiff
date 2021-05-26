@@ -24,7 +24,7 @@ typedef struct {
 } vcdiff_driver_t;
 
 typedef struct {
-	vcdiff_log_t debug_log;
+	vcdiff_log_t inst_log;
 	vcdiff_log_t state_log;
 
 	const vcdiff_driver_t *source_driver;
@@ -68,8 +68,8 @@ static inline void vcdiff_set_source_driver (vcdiff_t *ctx, const vcdiff_driver_
 	ctx->source_dev = dev;
 }
 
-static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t debug_log, vcdiff_log_t state_log) {
-	ctx->debug_log = debug_log;
+static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t inst_log, vcdiff_log_t state_log) {
+	ctx->inst_log = inst_log;
 	ctx->state_log = state_log;
 }
 
