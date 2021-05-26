@@ -11,7 +11,7 @@
 #define C VCDIFF_INST_COPY
 #define N VCDIFF_INST_NOP
 
-const static uint8_t codetable[6][256] =
+static const uint8_t codetable[6][256] =
 	// inst1
 	{ { R,  // opcode 0
 		A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,  // opcodes 1-18
@@ -146,6 +146,7 @@ const static uint8_t codetable[6][256] =
 		0, 0, 0, 0, 0, 0, 0, 0, 0 } };  // opcodes 247-255
 
 static void test_vcdiff_codtable_decode (void **state) {
+	(void) state;
 	vcdiff_t ctx;
 	for (size_t i = 0; i <= 255; i++) {
 		vcdiff_codetable_decode(&ctx, i);

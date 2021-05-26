@@ -17,7 +17,7 @@ vcdiff_read_rc_t vcdiff_read_int (size_t *dst, const uint8_t **input, size_t *in
 		*dst = (*dst << 7) | (**input & 0x7f);
 
 		rc = (**input & 0x80) ? VCDIFF_READ_CONT : VCDIFF_READ_DONE;
-		*(*input)++;
+		(*input)++;
 		(*input_remainder)--;
 	}
 

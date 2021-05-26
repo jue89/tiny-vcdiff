@@ -7,6 +7,7 @@
 #include <string.h>
 
 static void test_vcdiff_read_byte (void **state) {
+	(void) state;
 	const uint8_t data[] = {0x42};
 	const uint8_t *ptr = data;
 	size_t remaining_bytes = 1;
@@ -22,6 +23,7 @@ static void test_vcdiff_read_byte (void **state) {
 }
 
 static void test_vcdiff_read_int (void **state) {
+	(void) state;
 	const size_t res_expected = 123456789;
 	const uint8_t data[] = {0x80 + 58, 0x80 + 111, 0x80 + 26, 21};
 	const uint8_t *ptr = data;
@@ -43,6 +45,7 @@ static void test_vcdiff_read_int (void **state) {
 }
 
 static void test_vcdiff_read_buffer (void **state) {
+	(void) state;
 	const uint8_t data[] = "0123456789";
 	const uint8_t *ptr;
 	uint8_t buf[4];
@@ -51,12 +54,12 @@ static void test_vcdiff_read_buffer (void **state) {
 
 	/* read buffer in one go */
 	ptr = data;
-	remaining_bytes = strlen(data);
+	remaining_bytes = strlen((char *) data);
 	buf_idx = 0;
 	assert_int_equal(vcdiff_read_buffer(buf, &buf_idx, sizeof(buf), &ptr, &remaining_bytes), VCDIFF_READ_DONE);
 	assert_memory_equal(data, buf, sizeof(buf));
 	assert_int_equal(buf_idx, sizeof(buf));
-	assert_int_equal(remaining_bytes, strlen(data) - sizeof(buf));
+	assert_int_equal(remaining_bytes, strlen((char *) data) - sizeof(buf));
 
 	/* read buffer in multiple steps */
 	ptr = data;

@@ -5,6 +5,7 @@
 #include "vcdiff/codetable.h"
 #include "assert.h"
 #include <string.h>
+#include <sys/types.h>
 
 #define LOG(FMT, ...) \
 	if (ctx->debug_log) ctx->debug_log(FMT, __VA_ARGS__);
@@ -258,11 +259,11 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 				rc = driver->read(dev, ctx->buffer, ctx->win_segment_pos + *addr, to_copy);
 			} else {
 				/* data lives in the current window */
-				int32_t bytes_ahead = ctx->win_window_pos - (*addr - ctx->win_segment_len);
+				ssize_t bytes_ahead = ctx->win_window_pos - (*addr - ctx->win_segment_len);
 				if (bytes_ahead <= 0) {
 					RET_ERR(-1, "Address is outside of available target window");
 				}
-				to_copy = MIN(to_copy, bytes_ahead);
+				to_copy = MIN(to_copy, (size_t) bytes_ahead);
 				LOG("  COPY from WINDOW [0x%x+%d]", *addr - ctx->win_segment_len, to_copy);
 				rc = ctx->target_driver->read(ctx->target_dev, ctx->buffer, *addr - ctx->win_segment_len + ctx->target_offset, to_copy);
 			}
