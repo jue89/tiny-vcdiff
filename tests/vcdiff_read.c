@@ -22,11 +22,11 @@ static void test_vcdiff_read_byte (void **state) {
 }
 
 static void test_vcdiff_read_int (void **state) {
-	const uint32_t res_expected = 123456789;
+	const size_t res_expected = 123456789;
 	const uint8_t data[] = {0x80 + 58, 0x80 + 111, 0x80 + 26, 21};
 	const uint8_t *ptr = data;
 	size_t remaining_bytes = 3;
-	uint32_t res = 0;
+	size_t res = 0;
 
 	/* read first three bytes */
 	assert_int_equal(vcdiff_read_int(&res, &ptr, &remaining_bytes), VCDIFF_READ_CONT);

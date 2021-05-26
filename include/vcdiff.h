@@ -36,11 +36,11 @@ typedef struct {
 	uint16_t state;
 
 	uint8_t win_indicator;
-	uint32_t target_offset;
-	uint32_t win_segment_len;
-	uint32_t win_segment_pos;
-	uint32_t win_window_len;
-	uint32_t win_window_pos;
+	size_t target_offset;
+	size_t win_segment_len;
+	size_t win_segment_pos;
+	size_t win_window_len;
+	size_t win_window_pos;
 
 	vcdiff_cache_t cache;
 	uint8_t buffer[VCDIFF_BUFFER_SIZE];
@@ -50,10 +50,10 @@ typedef struct {
 	uint8_t inst1;
 	uint8_t mode0;
 	uint8_t mode1;
-	uint32_t size0;
-	uint32_t size1;
-	uint32_t addr0;
-	uint32_t addr1;
+	size_t size0;
+	size_t size1;
+	size_t addr0;
+	size_t addr1;
 } vcdiff_t;
 
 void vcdiff_init (vcdiff_t *ctx);

@@ -126,7 +126,7 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 		}
 		STATE(STATE_WIN_HDR, STATE_WIN_HDR_DELTA_LEN) {
 			/* just skip the delta length ... we don't care. */
-			uint32_t len = 0;
+			size_t len = 0;
 			READ_INT(&len);
 			SET_STATE(STATE_WIN_HDR, STATE_WIN_HDR_WINDOW_LENGTH);
 		}
@@ -151,7 +151,7 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 		}
 		STATE(STATE_WIN_HDR, STATE_WIN_HDR_INST_LEN) {
 			/* skip instruction length ... we don't care. */
-			uint32_t len = 0;
+			size_t len = 0;
 			READ_INT(&len);
 			SET_STATE(STATE_WIN_HDR, STATE_WIN_HDR_ADDR_LEN);
 		}
@@ -182,7 +182,7 @@ static inline int _parse_win_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *i
 	return 0;
 }
 
-static int _parse_win_body_addr(vcdiff_t *ctx, const uint8_t **input, size_t *input_remainder, uint8_t mode, uint32_t *addr) {
+static int _parse_win_body_addr(vcdiff_t *ctx, const uint8_t **input, size_t *input_remainder, uint8_t mode, size_t *addr) {
 	switch (vcdiff_addrcache_get_mode(mode)) {
 		case VCDIFF_MODE_SELF:
 			READ_INT(addr);
@@ -206,7 +206,7 @@ static int _parse_win_body_addr(vcdiff_t *ctx, const uint8_t **input, size_t *in
 	return 0;
 }
 
-static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *input_remainder, uint8_t inst, uint32_t *size, uint32_t *addr) {
+static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *input_remainder, uint8_t inst, size_t *size, size_t *addr) {
 	int rc;
 
 	if (ctx->win_window_pos + *size > ctx->win_window_len) {
@@ -215,7 +215,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 
 	if (inst == VCDIFF_INST_ADD) {
 		while (*size > 0) {
-			uint32_t to_write = FIT_TO_BUFFER(*size);
+			size_t to_write = FIT_TO_BUFFER(*size);
 			LOG("  ADD => [0x%x+%d]\n", ctx->target_offset + ctx->win_window_pos, to_write);
 			READ_BUFFER(to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
@@ -230,7 +230,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 		uint8_t byte;
 		READ_BYTE(&byte);
 		while (*size > 0) {
-			uint32_t to_write = FIT_TO_BUFFER(*size);
+			size_t to_write = FIT_TO_BUFFER(*size);
 			LOG("  RUN 0x%02x => [0x%x+%d]\n", byte, ctx->target_offset + ctx->win_window_pos, to_write);
 			memset(ctx->buffer, byte, to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
@@ -246,7 +246,7 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 			const vcdiff_driver_t *driver = (ctx->win_indicator & VCD_SOURCE) ? ctx->source_driver : ctx->target_driver;
 			void *dev = (ctx->win_indicator & VCD_SOURCE) ? ctx->source_dev : ctx->target_dev;
 
-			uint32_t to_copy = FIT_TO_BUFFER(*size);
+			size_t to_copy = FIT_TO_BUFFER(*size);
 
 			/* read */
 			if (*addr < ctx->win_segment_len) {

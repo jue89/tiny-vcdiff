@@ -7,7 +7,7 @@ void vcdiff_addrcache_init (vcdiff_cache_t *cache) {
 	memset(cache, 0x00, sizeof(vcdiff_cache_t));
 }
 
-uint32_t vcdiff_addrcache_update (vcdiff_cache_t *cache, uint32_t addr) {
+void vcdiff_addrcache_update (vcdiff_cache_t *cache, size_t addr) {
 	/* update near cache */
 	cache->near[cache->next_slot] = addr;
 	cache->next_slot = (cache->next_slot + 1) % ARRAY_SIZE(cache->near);

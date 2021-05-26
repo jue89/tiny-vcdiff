@@ -11,7 +11,7 @@ typedef enum {
 
 vcdiff_read_rc_t vcdiff_read_byte (uint8_t *dst, const uint8_t **input, size_t *input_remainder);
 
-vcdiff_read_rc_t vcdiff_read_int (uint32_t *dst, const uint8_t **input, size_t *input_remainder);
+vcdiff_read_rc_t vcdiff_read_int (size_t *dst, const uint8_t **input, size_t *input_remainder);
 
 vcdiff_read_rc_t vcdiff_read_buffer (uint8_t *buf, size_t *buf_ptr, size_t buf_len, const uint8_t **input, size_t *input_remainder);
 
