@@ -30,7 +30,7 @@ $(ODIR)/%.o: $(SDIR)/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 libvcdiff.a: $(OBJ)
-	$(AR) rc $@ $^
+	$(AR) src $@ $^
 
 test_%: $(TDIR)/%.c libvcdiff.a
 	$(CC) -o $@ $< $(CFLAGS_TESTS) -L. -lvcdiff
