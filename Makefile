@@ -12,14 +12,17 @@ VCDIFF_BUFFER_SIZE ?= 1024*1024
 CFLAGS=-g -Wall -Wextra -Wno-implicit-fallthrough -I$(IDIR) -DVCDIFF_BUFFER_SIZE=$(VCDIFF_BUFFER_SIZE)
 CFLAGS_TESTS=$(CFLAGS) -lcmocka
 
-.PHONY: lib clean tests
+.PHONY: all lib clean tests
+
+all: vcdiff-decode
 
 lib: libvcdiff.a
 
 clean:
-	rm $(OBJ)
-	rm libvcdiff.a
-	rm test_*
+	$(RM) $(OBJ)
+	$(RM) libvcdiff.a
+	$(RM) test_*
+	$(RM) vcdiff-decode
 
 test: test_vcdiff_codetable test_vcdiff_read test_vcdiff
 	./test_vcdiff_codetable
@@ -34,3 +37,6 @@ libvcdiff.a: $(OBJ)
 
 test_%: $(TDIR)/%.c libvcdiff.a
 	$(CC) $(CFLAGS_TESTS) -o $@ $< -L. -lvcdiff
+
+vcdiff-decode: tools/vcdiff-decode.c libvcdiff.a
+	$(CC) $(CFLAGS) -o $@ $< -L. -lvcdiff
