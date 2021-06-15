@@ -3,7 +3,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "vcdiff.h"
 
 enum {
 	VCDIFF_INST_NOP,
@@ -12,6 +11,8 @@ enum {
 	VCDIFF_INST_COPY
 };
 
-void vcdiff_codetable_decode(vcdiff_t *ctx, uint8_t code);
+void vcdiff_codetable_decode(uint8_t * inst0, size_t * size0, uint8_t * mode0,
+                             uint8_t * inst1, size_t * size1, uint8_t * mode1,
+                             uint8_t code);
 
 #endif

@@ -294,7 +294,8 @@ static inline int _parse_win_body(vcdiff_t *ctx, const uint8_t **input, size_t *
 			ctx->addr0 = 0;
 			ctx->addr1 = 0;
 
-			vcdiff_codetable_decode(ctx, code);
+			vcdiff_codetable_decode(&ctx->inst0, &ctx->size0, &ctx->mode0,
+			                        &ctx->inst1, &ctx->size1, &ctx->mode1, code);
 			if (ctx->size0 == 0) {
 				SET_STATE(STATE_WIN_BODY, STATE_WIN_BODY_SIZE0);
 			} else if (ctx->inst0 == VCDIFF_INST_COPY) {

@@ -147,15 +147,18 @@ static const uint8_t codetable[6][256] =
 
 static void test_vcdiff_codtable_decode (void **state) {
 	(void) state;
-	vcdiff_t ctx;
+	uint8_t inst0, inst1;
+	size_t size0, size1;
+	uint8_t mode0, mode1;
 	for (size_t i = 0; i <= 255; i++) {
-		vcdiff_codetable_decode(&ctx, i);
-		assert_int_equal(ctx.inst0, codetable[0][i]);
-		assert_int_equal(ctx.inst1, codetable[1][i]);
-		assert_int_equal(ctx.size0, codetable[2][i]);
-		assert_int_equal(ctx.size1, codetable[3][i]);
-		assert_int_equal(ctx.mode0, codetable[4][i]);
-		assert_int_equal(ctx.mode1, codetable[5][i]);
+		vcdiff_codetable_decode(&inst0, &size0, &mode0,
+		                        &inst1, &size1, &mode1, i);
+		assert_int_equal(inst0, codetable[0][i]);
+		assert_int_equal(inst1, codetable[1][i]);
+		assert_int_equal(size0, codetable[2][i]);
+		assert_int_equal(size1, codetable[3][i]);
+		assert_int_equal(mode0, codetable[4][i]);
+		assert_int_equal(mode1, codetable[5][i]);
 	}
 }
 
