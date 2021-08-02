@@ -1,8 +1,6 @@
 #ifndef VCDIFF_STATE_H
 #define VCDIFF_STATE_H
 
-#include "vcdiff.h"
-
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
 
@@ -52,9 +50,5 @@ enum {
 enum {
 	FOREACH_STATE_WIN_BODY(GENERATE_ENUM)
 };
-
-const char *vcdiff_state_str (vcdiff_t *ctx);
-
-const char *vcdiff_error_str (vcdiff_t *ctx);
 
 #endif

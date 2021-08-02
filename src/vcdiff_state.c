@@ -1,4 +1,5 @@
 #include "vcdiff/state.h"
+#include "vcdiff.h"
 
 static const char *state_hdr_str[] = {
 	FOREACH_STATE_HDR(GENERATE_STRING)

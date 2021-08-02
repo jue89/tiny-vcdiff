@@ -2,6 +2,7 @@
 #define VCDIFF_H
 
 #include "vcdiff/addrcache.h"
+#include "vcdiff/state.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -76,5 +77,9 @@ static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t inst_log, vcdi
 int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t len);
 
 int vcdiff_finish (vcdiff_t *ctx);
+
+const char *vcdiff_state_str (vcdiff_t *ctx);
+
+const char *vcdiff_error_str (vcdiff_t *ctx);
 
 #endif
