@@ -217,8 +217,8 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 	if (inst == VCDIFF_INST_ADD) {
 		while (*size > 0) {
 			size_t to_write = FIT_TO_BUFFER(*size);
-			LOG("  ADD => [0x%x+%d]\n", ctx->target_offset + ctx->win_window_pos, to_write);
 			READ_BUFFER(to_write);
+			LOG("  ADD => [0x%x+%d]\n", ctx->target_offset + ctx->win_window_pos, to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
 			if (rc < 0) RET_ERR(rc, "INST_ADD: cannot write to target");
 			ctx->win_window_pos += to_write;
@@ -232,8 +232,8 @@ static int _parse_win_body_exec(vcdiff_t *ctx, const uint8_t **input, size_t *in
 		READ_BYTE(&byte);
 		while (*size > 0) {
 			size_t to_write = FIT_TO_BUFFER(*size);
-			LOG("  RUN 0x%02x => [0x%x+%d]\n", byte, ctx->target_offset + ctx->win_window_pos, to_write);
 			memset(ctx->buffer, byte, to_write);
+			LOG("  RUN 0x%02x => [0x%x+%d]\n", byte, ctx->target_offset + ctx->win_window_pos, to_write);
 			rc = ctx->target_driver->write(ctx->target_dev, ctx->buffer, ctx->target_offset + ctx->win_window_pos, to_write);
 			if (rc < 0) RET_ERR(rc, "INST_RUN: cannot write to target");
 			ctx->win_window_pos += to_write;
