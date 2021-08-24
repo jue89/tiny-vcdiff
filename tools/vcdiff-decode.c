@@ -110,7 +110,11 @@ static int apply_delta(FILE *delta, FILE *source, FILE *target_file, size_t log_
 }
 
 static void usage (void) {
-	fprintf(stderr, "Usage: vcdiff-decode [-l log_interval] source_path\n");
+	fprintf(stderr, "Usage: vcdiff-decode [-i] [-s <interval>] source_path\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "  -i              Enable instruction log\n");
+	fprintf(stderr, "  -s <interval>   Print stats every <interval> Bytes written to the target\n");
+	fprintf(stderr, "STDIN: delta file. STDOUT: target file. STDERR: logging.\n");
 }
 
 static int stderr_logger (const char *fmt, ...) {
