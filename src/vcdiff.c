@@ -7,23 +7,26 @@
 #include <string.h>
 #include <sys/types.h>
 
-#define LOG(FMT, ...) \
-	if (ctx->inst_log) ctx->inst_log(FMT, __VA_ARGS__);
-#define LOG_STATE() \
-	if (ctx->state_log) ctx->state_log("Enter state: %s\n", vcdiff_state_str(ctx));
-
 #define STATE(MAJ, MIN) \
 	case (MAJ + MIN): \
 		assert(ctx->state == MAJ + MIN); \
 		LOG_STATE();
 
+#define LOG(FMT, ...) \
+	if (ctx->inst_log) ctx->inst_log(FMT, __VA_ARGS__);
+
+#define LOG_STATE() \
+	if (ctx->state_log) ctx->state_log("Enter state: %s\n", vcdiff_state_str(ctx));
+
+#define SET_ERROR_MSG(MSG) \
+	ctx->error_msg = MSG;
 
 #define SET_STATE(MAJ, MIN) \
 	ctx->state = MAJ + MIN;
 
 #define RET_ERR(RC, MSG) { \
 	assert(RC != 0); \
-	ctx->error_msg = MSG; \
+	SET_ERROR_MSG(MSG); \
 	ctx->state = STATE_ERR; \
 	return RC; }
 
@@ -413,7 +416,7 @@ int vcdiff_apply_delta (vcdiff_t *ctx, const uint8_t *input, size_t input_remain
 
 void vcdiff_init (vcdiff_t *ctx) {
 	SET_STATE(STATE_HDR, STATE_HDR_MAGIC0);
-	ctx->error_msg = NULL;
+	SET_ERROR_MSG(NULL);
 	ctx->target_offset = 0;
 	ctx->buffer_ptr = 0;
 	ctx->target_driver = NULL;
@@ -427,10 +430,10 @@ int vcdiff_finish (vcdiff_t *ctx) {
 
 	if (ctx->state == STATE_FINISH) {
 		rc = -1;
-		ctx->error_msg = "Operation already finished";
+		SET_ERROR_MSG("Operation already finished");
 	} else if (ctx->state != STATE_WIN_HDR + STATE_WIN_HDR_INDICATOR) {
 		rc = -1;
-		ctx->error_msg = "Unfinished vcdiff operation";
+		SET_ERROR_MSG("Unfinished vcdiff operation");
 	}
 
 	ctx->state = STATE_FINISH;
