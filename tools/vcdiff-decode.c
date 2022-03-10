@@ -85,6 +85,7 @@ static const vcdiff_driver_t source_driver = {
 };
 
 static int apply_delta(FILE *delta, FILE *source, FILE *target_file, size_t log_interval, vcdiff_log_t inst_log) {
+	int rc = 0;
 	static vcdiff_t ctx;
 	struct target_stream target = {.file = target_file, .log_interval = log_interval};
 	uint8_t delta_buf[16 * 1024];
@@ -97,16 +98,22 @@ static int apply_delta(FILE *delta, FILE *source, FILE *target_file, size_t log_
 
 	while ((delta_len = fread(delta_buf, sizeof(delta_buf[0]), sizeof(delta_buf), delta))) {
 		target.log_delta_written += delta_len;
-		int rc = vcdiff_apply_delta(&ctx, delta_buf, delta_len);
+		rc = vcdiff_apply_delta(&ctx, delta_buf, delta_len);
 		if (rc < 0) {
-			fprintf(stderr, "Error while applying delta: %s\n", vcdiff_error_str(&ctx));
-			return rc;
+			goto exit;
 		}
 	}
 
 	log_stats(&target, true);
 
-	return 0;
+	rc = vcdiff_finish(&ctx);
+
+exit:
+	if (rc < 0) {
+		fprintf(stderr, "Error while applying delta: %s\n", vcdiff_error_str(&ctx));
+	}
+
+	return rc;
 }
 
 static void usage (void) {
