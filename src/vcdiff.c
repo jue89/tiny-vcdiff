@@ -14,7 +14,6 @@
 
 #define STATE(MAJ, MIN) \
 	case (MAJ + MIN): \
-		assert(ctx->error_msg == NULL); \
 		assert(ctx->state == MAJ + MIN); \
 		LOG_STATE();
 
@@ -25,6 +24,7 @@
 #define RET_ERR(RC, MSG) { \
 	assert(RC != 0); \
 	ctx->error_msg = MSG; \
+	ctx->state = STATE_ERR; \
 	return RC; }
 
 #define READ_BYTE(VAR) { \
