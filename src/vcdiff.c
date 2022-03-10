@@ -12,14 +12,18 @@
 		assert(ctx->state == MAJ + MIN); \
 		LOG_STATE();
 
-#define LOG(FMT, ...) \
+#if defined(VCDIFF_NDEBUG)
+# define LOG(FMT, ...)
+# define LOG_STATE()
+# define SET_ERROR_MSG(MSG)
+#else
+# define LOG(FMT, ...) \
 	if (ctx->inst_log) ctx->inst_log(FMT, __VA_ARGS__);
-
-#define LOG_STATE() \
+# define LOG_STATE() \
 	if (ctx->state_log) ctx->state_log("Enter state: %s\n", vcdiff_state_str(ctx));
-
-#define SET_ERROR_MSG(MSG) \
+# define SET_ERROR_MSG(MSG) \
 	ctx->error_msg = MSG;
+#endif
 
 #define SET_STATE(MAJ, MIN) \
 	ctx->state = MAJ + MIN;
@@ -51,7 +55,9 @@
 	int rc = FN(ctx, input, input_remainder, __VA_ARGS__); \
 	if (rc != 0) return rc; }
 
+#if !defined(VCDIFF_NDEBUG)
 static const char *msg_invalid_magic = "Invalid magic";
+#endif
 
 static inline int _parse_hdr(vcdiff_t *ctx, const uint8_t **input, size_t *input_remainder) {
 	switch (ctx->state) {
@@ -421,8 +427,10 @@ void vcdiff_init (vcdiff_t *ctx) {
 	ctx->buffer_ptr = 0;
 	ctx->target_driver = NULL;
 	ctx->source_driver = NULL;
+#if !defined(VCDIFF_NDEBUG)
 	ctx->inst_log = NULL;
 	ctx->state_log = NULL;
+#endif
 }
 
 int vcdiff_finish (vcdiff_t *ctx) {

@@ -107,15 +107,17 @@ typedef struct {
  * delta file to be split into chunks of arbitrary size, no state is hold on the stack.
  */
 typedef struct {
+#if !defined(VCDIFF_NDEBUG)
+	const char *error_msg;                /**< Message of the last error */
 	vcdiff_log_t inst_log;                /**< Callback for instruction logging */
 	vcdiff_log_t state_log;               /**< Callback for state logging */
+#endif
 
 	const vcdiff_driver_t *source_driver; /**< Source driver defintion */
 	void *source_dev;                     /**< Context for source driver */
 	const vcdiff_driver_t *target_driver; /**< Target driver defintion */
 	void *target_dev;                     /**< Context for target driver */
 
-	const char *error_msg;                /**< Message of the last error */
 	uint16_t state;                       /**< Current decoder state */
 
 	uint8_t win_indicator;
@@ -178,8 +180,14 @@ static inline void vcdiff_set_source_driver (vcdiff_t *ctx, const vcdiff_driver_
  * @param[in]  state_log State change logging. Set to `NULL` to disable logging.
  */
 static inline void vcdiff_set_logger (vcdiff_t *ctx, vcdiff_log_t inst_log, vcdiff_log_t state_log) {
+#if defined(VCDIFF_NDEBUG)
+	(void) ctx;
+	(void) inst_log;
+	(void) state_log;
+#else
 	ctx->inst_log = inst_log;
 	ctx->state_log = state_log;
+#endif
 }
 
 /**
