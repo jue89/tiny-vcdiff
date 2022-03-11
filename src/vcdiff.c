@@ -434,17 +434,18 @@ void vcdiff_init (vcdiff_t *ctx) {
 }
 
 int vcdiff_finish (vcdiff_t *ctx) {
-	int rc = 0;
+	if (ctx->state == STATE_ERR) {
+		return -1;
+	}
 
 	if (ctx->state == STATE_FINISH) {
-		rc = -1;
-		SET_ERROR_MSG("Operation already finished");
-	} else if (ctx->state != STATE_WIN_HDR + STATE_WIN_HDR_INDICATOR) {
-		rc = -1;
-		SET_ERROR_MSG("Unfinished vcdiff operation");
+		RET_ERR(-1, "Operation already finished");
+	}
+
+	if (ctx->state != STATE_WIN_HDR + STATE_WIN_HDR_INDICATOR) {
+		RET_ERR(-1, "Unfinished vcdiff operation");
 	}
 
 	ctx->state = STATE_FINISH;
-
-	return rc;
+	return 0;
 }

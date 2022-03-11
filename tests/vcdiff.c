@@ -131,7 +131,7 @@ static void test_vcdiff_header (void **state) {
 	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
 	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), -1);
-	assert_string_equal("STATE_HDR_INDICATOR", vcdiff_state_str(&ctx));
+	assert_string_equal("STATE_ERR", vcdiff_state_str(&ctx));
 	assert_string_equal("Header indicator references unsupported features", vcdiff_error_str(&ctx));
 
 	/* fail with wrong magic */
@@ -140,7 +140,7 @@ static void test_vcdiff_header (void **state) {
 	vcdiff_set_target_driver(&ctx, &target_driver, NULL);
 	vcdiff_set_source_driver(&ctx, &source_driver, NULL);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), -1);
-	assert_string_equal("STATE_HDR_MAGIC3", vcdiff_state_str(&ctx));
+	assert_string_equal("STATE_ERR", vcdiff_state_str(&ctx));
 	assert_string_equal("Invalid magic", vcdiff_error_str(&ctx));
 }
 

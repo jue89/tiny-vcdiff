@@ -36,6 +36,10 @@ const char *vcdiff_state_str (vcdiff_t *ctx) {
 		case STATE_WIN_BODY:
 			if (state_min >= ARRAY_LENGTH(state_win_body_str)) break;
 			return state_win_body_str[state_min];
+		case STATE_ERR:
+			return "STATE_ERR";
+		case STATE_FINISH:
+			return "STATE_FINISH";
 	}
 	return "UNKNOWN STATE!";
 #endif
