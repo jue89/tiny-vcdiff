@@ -63,12 +63,10 @@ typedef int (*vcdiff_driver_write_t)(void *dev, uint8_t *src, size_t offset, siz
  * @brief   Signature for flush operations
  *
  * @param      dev       Driver context
- * @param[in]  offset    Offset in byte on the device to flush
- * @param[in]  len       Amount of bytes to be flushed
  * @return     `>= 0` if data has been flushed successfully
  * @return     `< 0` if an error occured while flushing
  */
-typedef int (*vcdiff_driver_flush_t)(void *dev, size_t offset, size_t len);
+typedef int (*vcdiff_driver_flush_t)(void *dev);
 
 /**
  * @brief   Signature for erase operations

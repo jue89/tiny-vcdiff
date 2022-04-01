@@ -51,17 +51,13 @@ int target_read (void *dev, uint8_t *src, size_t offset, size_t len) {
 	expect_value(target_read, len, LEN); \
 	will_return(target_read, RC);
 
-int target_flush (void *dev, size_t offset, size_t len) {
+int target_flush (void *dev) {
 	check_expected_ptr(dev);
-	check_expected(offset);
-	check_expected(len);
 	return (int) mock();
 }
 
-#define expect_target_flush(RC, DEV, OFFSET, LEN) \
+#define expect_target_flush(RC, DEV) \
 	expect_value(target_flush, dev, DEV); \
-	expect_value(target_flush, offset, OFFSET); \
-	expect_value(target_flush, len, LEN); \
 	will_return(target_flush, RC);
 
 static vcdiff_driver_t target_driver_full = {
@@ -235,8 +231,10 @@ static void test_vcdiff_win_body1 (void **state) {
 		len -= chunk;
 		offset += chunk;
 	}
-	expect_target_flush(0, 0x42, 0, 0x44a8);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), 0);
+
+	expect_target_flush(0, 0x42);
+
 	assert_int_equal(vcdiff_finish(&ctx), 0);
 
 	/* read byte-wise */
@@ -261,10 +259,12 @@ static void test_vcdiff_win_body1 (void **state) {
 		len -= chunk;
 		offset += chunk;
 	}
-	expect_target_flush(0, 0x42, 0, 0x44a8);
 	for (size_t i = 0; i < sizeof(data); i++) {
 		assert_int_equal(vcdiff_apply_delta(&ctx, &data[i], 1), 0);
 	}
+
+	expect_target_flush(0, 0x42);
+
 	assert_int_equal(vcdiff_finish(&ctx), 0);
 }
 
@@ -314,8 +314,10 @@ static void test_vcdiff_win_body2 (void **state) {
 	}
 	expect_target_write(0, 0x42, ctx.buffer, 0x143, 1);
 
-	expect_target_flush(0, 0x42, 0, 0x144);
 	assert_int_equal(vcdiff_apply_delta(&ctx, data, sizeof(data)), 0);
+
+	expect_target_flush(0, 0x42);
+
 	assert_int_equal(vcdiff_finish(&ctx), 0);
 }
 

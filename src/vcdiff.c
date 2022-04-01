@@ -371,12 +371,6 @@ static inline int _parse_win_body(vcdiff_t *ctx, const uint8_t **input, size_t *
 			}
 		}
 		STATE(STATE_WIN_BODY, STATE_WIN_BODY_STATE_WIN_BODY_FINISH) {
-			/* flush data */
-			if (ctx->target_driver->flush) {
-				int rc = ctx->target_driver->flush(ctx->target_dev, ctx->target_offset, ctx->win_window_len);
-				if (rc < 0) RET_ERR(rc, "Target flush failed");
-			}
-
 			/* add the length of the processed window */
 			ctx->target_offset += ctx->win_window_len;
 
@@ -434,6 +428,8 @@ void vcdiff_init (vcdiff_t *ctx) {
 }
 
 int vcdiff_finish (vcdiff_t *ctx) {
+	assert(ctx->target_driver);
+
 	if (ctx->state == STATE_ERR) {
 		return -1;
 	}
@@ -444,6 +440,12 @@ int vcdiff_finish (vcdiff_t *ctx) {
 
 	if (ctx->state != STATE_WIN_HDR + STATE_WIN_HDR_INDICATOR) {
 		RET_ERR(-1, "Unfinished vcdiff operation");
+	}
+
+	/* flush pending data; not further writes are to be expected */
+	if (ctx->target_driver->flush) {
+		int rc = ctx->target_driver->flush(ctx->target_dev);
+		if (rc < 0) RET_ERR(rc, "Target flush failed");
 	}
 
 	ctx->state = STATE_FINISH;
