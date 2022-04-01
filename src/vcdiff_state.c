@@ -17,6 +17,9 @@ static const char *state_win_body_str[] = {
 };
 #endif
 
+#ifdef ARRAY_LENGTH
+#undef ARRAY_LENGTH
+#endif
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 const char *vcdiff_state_str (vcdiff_t *ctx) {
