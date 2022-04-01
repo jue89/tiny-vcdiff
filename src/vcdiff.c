@@ -8,6 +8,7 @@
 #include <sys/types.h>
 
 #define STATE(MAJ, MIN) \
+	/* fallthrough */ \
 	case (MAJ + MIN): \
 		assert(ctx->state == MAJ + MIN); \
 		LOG_STATE();

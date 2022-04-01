@@ -9,7 +9,7 @@ TDIR=tests
 OBJ = obj/vcdiff_read.o obj/vcdiff_state.o obj/vcdiff_codetable.o obj/vcdiff_addrcache.o obj/vcdiff.o
 
 VCDIFF_BUFFER_SIZE ?= 1024*1024
-CFLAGS=-g -Wall -Wextra -Wno-implicit-fallthrough -I$(IDIR) -DVCDIFF_BUFFER_SIZE=$(VCDIFF_BUFFER_SIZE)
+CFLAGS=-g -Wall -Wextra -I$(IDIR) -DVCDIFF_BUFFER_SIZE=$(VCDIFF_BUFFER_SIZE)
 CFLAGS_TESTS=$(CFLAGS) -lcmocka
 
 .PHONY: all lib clean tests
