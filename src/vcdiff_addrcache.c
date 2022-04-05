@@ -1,8 +1,8 @@
 #include "vcdiff/addrcache.h"
 #include <string.h>
 
-#ifdef ARRAY_LENGTH
-#undef ARRAY_LENGTH
+#ifdef ARRAY_SIZE
+#undef ARRAY_SIZE
 #endif
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 
